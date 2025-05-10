@@ -34,10 +34,10 @@ def create_yolov7_transforms(
     transforms = [
         A.LongestMaxSize(max(image_size)),
         A.PadIfNeeded(
+            # value=(114, 114, 114),
             image_size[0],
             image_size[1],
             border_mode=0,
-            value=(114, 114, 114),
         ),
     ]
 

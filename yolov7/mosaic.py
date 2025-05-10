@@ -29,7 +29,7 @@ def create_post_mosaic_transform(
     return A.Compose(
         [
             A.Affine(
-                cval=pad_colour,
+                # cval=pad_colour,
                 rotate=rotation_range,
                 shear=shear_range,
                 translate_percent=translation_percent_range,
