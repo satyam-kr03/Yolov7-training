@@ -117,7 +117,7 @@ class CarsDatasetAdaptor(Dataset):
 DATA_PATH = Path("/".join(Path(__file__).absolute().parts[:-2])) / "data/cars"
 
 
-@script
+# @script
 def main(
     data_path: str = DATA_PATH,
     image_size: int = 640,

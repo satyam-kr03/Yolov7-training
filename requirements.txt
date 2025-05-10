@@ -9,3 +9,7 @@ scipy>=1.4.1
 ensemble-boxes==1.0.9
 torchvision==0.13.1
 pytest==7.2.0
+numpy
+pandas
+pycocotools
+albumentations
