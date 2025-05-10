@@ -126,7 +126,7 @@ DATA_PATH = Path("/".join(Path(__file__).absolute().parts[:-2])) / "data/cars"
 
 # @script
 def main(
-    data_path: str = DATA_PATH,
+    data_path: str = '//content/drive/MyDrive/data/cars',
     image_size: int = 640,
     pretrained: bool = False,
     num_epochs: int = 300,
