@@ -119,7 +119,7 @@ DATA_PATH = Path("/".join(Path(__file__).absolute().parts[:-2])) / "data/cars"
 
 # @script
 def main(
-    data_path: str = DATA_PATH,
+    data_path: str = '//content/drive/MyDrive/data/cars',
     image_size: int = 640,
     pretrained: bool = True,
     num_epochs: int = 30,
@@ -127,7 +127,7 @@ def main(
 ):
 
     # Load data
-    data_path = Path('//content/drive/MyDrive/data/cars')
+    data_path = Path(data_path)
     images_path = data_path / "training_images"
     annotations_file_path = data_path / "annotations.csv"
 

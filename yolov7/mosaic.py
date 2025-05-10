@@ -28,17 +28,18 @@ def create_post_mosaic_transform(
     return A.Compose(
         [
             A.Affine(
-                cval=pad_colour,
+                border_mode_value=pad_colour,  # Change from cval to border_mode_value
                 rotate=rotation_range,
                 shear=shear_range,
                 translate_percent=translation_percent_range,
-                scale=None,
+                scale=(0.8, 1.2),
                 keep_ratio=True,
                 p=apply_prob,
             ),
             A.HorizontalFlip(),
             A.RandomResizedCrop(
-                height=output_height, width=output_width, scale=scale_range
+                size=(output_height, output_width),  # Change to use size parameter
+                scale=scale_range
             ),
         ],
         bbox_params=A.BboxParams(
