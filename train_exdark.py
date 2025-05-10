@@ -123,7 +123,7 @@ class CarsDatasetAdaptor(Dataset):
 
 # %%
 def main(
-    data_path: str = '//content/drive/MyDrive/ExDark',
+    data_path: str = '//content/Yolov7-training/data/ExDark',
     image_size: int = 640,
     pretrained: bool = False,
     num_epochs: int = 300,
