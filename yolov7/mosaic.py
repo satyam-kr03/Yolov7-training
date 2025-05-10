@@ -377,7 +377,7 @@ class MosaicMixupDataset:
                     output_height,
                     output_width,
                     border_mode=0,
-                    value=pad_colour,
+                    border_value=pad_colour,
                 ),
                 A.Resize(height=output_height, width=output_width),
             ],
