@@ -11,11 +11,6 @@ def _apply_transform(transform, image, boxes, classes):
     image = transformed["image"]
     boxes = np.array(transformed["bboxes"])
     classes = np.array(transformed["labels"])
-    
-    # Add explicit clipping to ensure all values are in [0, 1]
-    if len(boxes) > 0:
-        boxes[:, [0, 2]] = np.clip(boxes[:, [0, 2]], 0.0, 1.0)
-        boxes[:, [1, 3]] = np.clip(boxes[:, [1, 3]], 0.0, 1.0)
 
     return image, boxes, classes
 
@@ -33,40 +28,29 @@ def create_post_mosaic_transform(
     return A.Compose(
         [
             A.Affine(
-                border_mode_value=pad_colour,  # Change from cval to border_mode_value
+                cval=pad_colour,
                 rotate=rotation_range,
                 shear=shear_range,
                 translate_percent=translation_percent_range,
-                scale=(0.8, 1.2),
+                scale=None,
                 keep_ratio=True,
                 p=apply_prob,
             ),
             A.HorizontalFlip(),
             A.RandomResizedCrop(
-                size=(output_height, output_width),  # Change to use size parameter
-                scale=scale_range
+                height=output_height, width=output_width, scale=scale_range
             ),
         ],
-            bbox_params=A.BboxParams(
-                format="pascal_voc", 
-                label_fields=["labels"],
-                min_visibility=0.1,
-                min_area=0,
-                check_each_transform=False  # Less strict checking
-            ),
+        bbox_params=A.BboxParams(
+            format="pascal_voc", label_fields=["labels"], min_visibility=0.25
+        ),
     )
 
 
 def create_pre_mixup_transform(flip_prob=0.5, **kwargs):
     return A.Compose(
         [A.HorizontalFlip(p=flip_prob)],
-        bbox_params=A.BboxParams(
-        format="pascal_voc", 
-        label_fields=["labels"],
-        min_visibility=0.1,
-        min_area=0,
-        check_each_transform=False  # Less strict checking
-        ),
+        bbox_params=A.BboxParams(format="pascal_voc", label_fields=["labels"]),
     )
 
 
@@ -396,14 +380,7 @@ class MosaicMixupDataset:
                 ),
                 A.Resize(height=output_height, width=output_width),
             ],
-            bbox_params=A.BboxParams(
-                format="pascal_voc",
-                label_fields=["labels"],
-                min_visibility=0.0,          # keep boxes even if partly out
-                min_area=1,                   # drop boxes smaller than 1×1 px
-                check_each_transform=True    # ← validate *after each* sub-augmentation
-            )
-
+            bbox_params=A.BboxParams(format="pascal_voc", label_fields=["labels"]),
         )
 
 
