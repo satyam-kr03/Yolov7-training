@@ -381,7 +381,14 @@ class MosaicMixupDataset:
                 ),
                 A.Resize(height=output_height, width=output_width),
             ],
-            bbox_params=A.BboxParams(format="pascal_voc", label_fields=["labels"]),
+            bbox_params=A.BboxParams(
+                format="pascal_voc",
+                label_fields=["labels"],
+                min_visibility=0.0,          # keep boxes even if partly out
+                min_area=1,                   # drop boxes smaller than 1×1 px
+                check_each_transform=True    # ← validate *after each* sub-augmentation
+            )
+
         )
 
 
