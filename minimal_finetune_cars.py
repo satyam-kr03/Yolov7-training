@@ -127,7 +127,7 @@ def main(
 ):
 
     # Load data
-    data_path = Path(data_path)
+    data_path = Path('//content/drive/MyDrive/data/cars')
     images_path = data_path / "training_images"
     annotations_file_path = data_path / "annotations.csv"
 

@@ -13,3 +13,4 @@ numpy
 pandas
 pycocotools
 albumentations
+pytorch-accelerated
