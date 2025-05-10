@@ -88,6 +88,9 @@ class CarsDatasetAdaptor(Dataset):
     def __getitem__(self, index):
         image_id = self.image_idx_to_image_id[index]
         image_info = self.annotations_df[self.annotations_df.image_id == image_id]
+        if len(image_info) == 0:
+            raise ValueError(f"No information found for image_id {image_id} at index {index}")
+        
         file_name = image_info.image.values[0]
         assert image_id == image_info.image_id.values[0]
 
