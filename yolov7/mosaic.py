@@ -11,6 +11,11 @@ def _apply_transform(transform, image, boxes, classes):
     image = transformed["image"]
     boxes = np.array(transformed["bboxes"])
     classes = np.array(transformed["labels"])
+    
+    # Add explicit clipping to ensure all values are in [0, 1]
+    if len(boxes) > 0:
+        boxes[:, [0, 2]] = np.clip(boxes[:, [0, 2]], 0.0, 1.0)
+        boxes[:, [1, 3]] = np.clip(boxes[:, [1, 3]], 0.0, 1.0)
 
     return image, boxes, classes
 
