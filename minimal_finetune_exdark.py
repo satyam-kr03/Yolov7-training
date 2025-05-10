@@ -88,6 +88,11 @@ class CarsDatasetAdaptor(Dataset):
     def __getitem__(self, index):
         image_id = self.image_idx_to_image_id[index]
         image_info = self.annotations_df[self.annotations_df.image_id == image_id]
+        if len(image_info) == 0:
+            print(f"Warning: No annotation found for image_id {image_id}")
+            # Return a dummy/empty item or skip this image
+            # Option 1: Skip to next image (not recommended during training)
+            return self.__getitem__((index + 1) % len(self))
         file_name = image_info.image.values[0]
         assert image_id == image_info.image_id.values[0]
 
