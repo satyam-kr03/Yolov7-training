@@ -25,6 +25,7 @@ def create_post_mosaic_transform(
     scale_range=(0.08, 1.0),
     apply_prob=0.8,
 ):
+    
     return A.Compose(
         [
             A.Affine(
@@ -32,7 +33,7 @@ def create_post_mosaic_transform(
                 rotate=rotation_range,
                 shear=shear_range,
                 translate_percent=translation_percent_range,
-                scale=None,
+                cale=(0.9, 1.1),
                 keep_ratio=True,
                 p=apply_prob,
             ),
