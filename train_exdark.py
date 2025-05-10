@@ -99,23 +99,22 @@ class CarsDatasetAdaptor(Dataset):
 
         if len(image_info) == 0:
             # Return a fallback or skip this index
-            # Option 1: Use another valid index
             return self.__getitem__((index + 1) % len(self))
-            
-            # Option 2: Create empty placeholder (less recommended)
-            # return np.zeros((100, 100, 3), dtype=np.uint8), np.array([]), np.array([]), image_id, (100, 100)
         
         file_name = image_info.image.values[0]
-
         assert image_id == image_info.image_id.values[0]
 
         image = Image.open(self.images_dir_path / file_name).convert("RGB")
         image = np.array(image)
-
         image_hw = image.shape[:2]
 
         if image_info.has_annotation.any():
             xyxy_bboxes = image_info[["xmin", "ymin", "xmax", "ymax"]].values
+            # Ensure bounding boxes are within image boundaries
+            xyxy_bboxes[:, 0] = np.clip(xyxy_bboxes[:, 0], 0, image.shape[1] - 1)
+            xyxy_bboxes[:, 1] = np.clip(xyxy_bboxes[:, 1], 0, image.shape[0] - 1)
+            xyxy_bboxes[:, 2] = np.clip(xyxy_bboxes[:, 2], 0, image.shape[1])
+            xyxy_bboxes[:, 3] = np.clip(xyxy_bboxes[:, 3], 0, image.shape[0])
             class_ids = image_info["class_id"].values
         else:
             xyxy_bboxes = np.array([])
