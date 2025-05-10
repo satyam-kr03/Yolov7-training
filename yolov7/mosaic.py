@@ -33,20 +33,20 @@ def create_post_mosaic_transform(
                 rotate=rotation_range,
                 shear=shear_range,
                 translate_percent=translation_percent_range,
-                cale=(0.9, 1.1),
+                scale=(0.9, 1.1),  # Fixed typo: changed 'cale' to 'scale'
                 keep_ratio=True,
                 p=apply_prob,
             ),
             A.HorizontalFlip(),
             A.RandomResizedCrop(
-                height=output_height, width=output_width, scale=scale_range
+                size=(output_height, output_width),  # Using size parameter instead
+                scale=scale_range,
             ),
         ],
         bbox_params=A.BboxParams(
             format="pascal_voc", label_fields=["labels"], min_visibility=0.25
         ),
     )
-
 
 def create_pre_mixup_transform(flip_prob=0.5, **kwargs):
     return A.Compose(
