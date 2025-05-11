@@ -159,7 +159,7 @@ def main(
 
     mds = MosaicMixupDataset(
         train_ds,
-        apply_mixup_probability=0.15
+        apply_mixup_probability=0.15,
         post_mosaic_transforms=create_post_mosaic_transform(
             output_height=image_size, output_width=image_size
         ),
