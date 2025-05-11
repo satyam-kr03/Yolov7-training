@@ -84,6 +84,11 @@ def load_cars_df(annotations_file_path: Path, images_path: Path,
         "class_id_to_label": class_id_to_label,
         "class_label_to_id": class_label_to_id,
     }
+
+    print(train_df.head())
+    print(valid_df.head())
+
+
     return train_df, valid_df, lookups
 
 
@@ -146,13 +151,10 @@ class CarsDatasetAdaptor(Dataset):
         return image, xyxy_bboxes, class_ids, image_id, image_hw
 
 
-DATA_PATH = Path("/".join(Path(__file__).absolute().parts[:-2])) / "data/cars"
-
-
 # @script
 def main(
-    # data_path: str = '//content/Yolov7-training/data/ExDark',
-    data_path: str = './ExDark',
+    data_path: str = '//content/Yolov7-training/data/ExDark',
+    # data_path: str = './ExDark',
     image_size: int = 640,
     # image_size: int = 416,
     pretrained: bool = True,
