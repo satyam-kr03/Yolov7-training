@@ -23,37 +23,61 @@ from yolov7.loss_factory import create_yolov7_loss
 from yolov7.trainer import Yolov7Trainer, filter_eval_predictions
 
 
-def load_cars_df(annotations_file_path, images_path):
-    all_images = sorted(set([p.parts[-1] for p in images_path.iterdir()]))
-    image_id_to_image = {i: im for i, im in enumerate(all_images)}
-    image_to_image_id = {v: k for k, v, in image_id_to_image.items()}
-
-    annotations_df = pd.read_csv(annotations_file_path)
-    annotations_df.loc[:, "class_name"] = "car"
-    annotations_df.loc[:, "has_annotation"] = True
-
-    # add 100 empty images to the dataset
-    empty_images = sorted(set(all_images) - set(annotations_df.image.unique()))
-    non_annotated_df = pd.DataFrame(list(empty_images)[:100], columns=["image"])
-    non_annotated_df.loc[:, "has_annotation"] = False
-    non_annotated_df.loc[:, "class_name"] = "background"
-
-    df = pd.concat((annotations_df, non_annotated_df))
-
-    class_id_to_label = dict(
-        enumerate(df.query("has_annotation == True").class_name.unique())
-    )
-    class_label_to_id = {v: k for k, v in class_id_to_label.items()}
-
-    df["image_id"] = df.image.map(image_to_image_id)
-    df["class_id"] = df.class_name.map(class_label_to_id)
-
-    file_names = tuple(df.image.unique())
-    random.seed(42)
-    validation_files = set(random.sample(file_names, int(len(df) * 0.2)))
-    train_df = df[~df.image.isin(validation_files)]
-    valid_df = df[df.image.isin(validation_files)]
-
+def load_cars_df(annotations_file_path: Path, images_path: Path, 
+                    background_class_name: str = "background",
+                    n_empty: int = 100,
+                    val_split: float = 0.2,
+                    seed: int = 42):
+    # 1) list all image files
+    all_images = sorted(p.name for p in images_path.iterdir() if p.is_file())
+    
+    # 2) read your CSV; assume it has columns:
+    #    image,xmin,ymin,xmax,ymax,class_name
+    ann = pd.read_csv(annotations_file_path)
+    ann["has_annotation"] = True
+    
+    # 3) find up to n_empty images with no annotations
+    annotated_images = set(ann["image"].unique())
+    empty_images = sorted(set(all_images) - annotated_images)[:n_empty]
+    empty_df = pd.DataFrame({
+        "image": empty_images,
+        # fill bbox columns with NaN
+        "xmin":   [pd.NA] * len(empty_images),
+        "ymin":   [pd.NA] * len(empty_images),
+        "xmax":   [pd.NA] * len(empty_images),
+        "ymax":   [pd.NA] * len(empty_images),
+        "class_name": [background_class_name] * len(empty_images),
+        "has_annotation": [False] * len(empty_images),
+    })
+    
+    # 4) concat
+    df = pd.concat([ann, empty_df], ignore_index=True)
+    
+    # 5) build mappings
+    #    a) images ↔ IDs
+    image_id_to_image = {i: img for i, img in enumerate(all_images)}
+    image_to_image_id = {img: i for i, img in image_id_to_image.items()}
+    
+    #    b) classes ↔ IDs
+    #       include every class that appears (incl. background if present)
+    class_names = list(df["class_name"].unique())
+    class_id_to_label = {i: cls for i, cls in enumerate(class_names)}
+    class_label_to_id = {cls: i for i, cls in class_id_to_label.items()}
+    
+    # 6) map into df
+    df["image_id"] = df["image"].map(image_to_image_id)
+    df["class_id"] = df["class_name"].map(class_label_to_id)
+    
+    # 7) split by *unique* images
+    random.seed(seed)
+    unique_images = list(df["image"].unique())
+    n_val = int(len(unique_images) * val_split)
+    val_images = set(random.sample(unique_images, n_val))
+    
+    train_df = df[~df["image"].isin(val_images)].reset_index(drop=True)
+    valid_df = df[ df["image"].isin(val_images)].reset_index(drop=True)
+    
+    # 8) return
     lookups = {
         "image_id_to_image": image_id_to_image,
         "image_to_image_id": image_to_image_id,
@@ -90,8 +114,6 @@ class CarsDatasetAdaptor(Dataset):
         image_info = self.annotations_df[self.annotations_df.image_id == image_id]
         if len(image_info) == 0:
             print(f"Warning: No annotation found for image_id {image_id}")
-            # Return a dummy/empty item or skip this image
-            # Option 1: Skip to next image (not recommended during training)
             return self.__getitem__((index + 1) % len(self))
         file_name = image_info.image.values[0]
         assert image_id == image_info.image_id.values[0]
@@ -129,12 +151,13 @@ DATA_PATH = Path("/".join(Path(__file__).absolute().parts[:-2])) / "data/cars"
 
 # @script
 def main(
-    data_path: str = '//content/Yolov7-training/data/ExDark',
-    # data_path: str = './ExDark',
-    image_size: int = 640,
+    # data_path: str = '//content/Yolov7-training/data/ExDark',
+    data_path: str = './ExDark',
+    # image_size: int = 640,
+    image_size: int = 416,
     pretrained: bool = True,
     num_epochs: int = 30,
-    batch_size: int = 8,
+    batch_size: int = 4,
 ):
 
     # Load data
@@ -143,7 +166,7 @@ def main(
     annotations_file_path = data_path / "annotations.csv"
 
     train_df, valid_df, lookups = load_cars_df(annotations_file_path, images_path)
-    num_classes = 1
+    num_classes = 12
 
     # Create datasets
     train_ds = CarsDatasetAdaptor(

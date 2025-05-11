@@ -1,0 +1,5 @@
+Transferred 555/566 items from https://github.com/Chris-hughes10/Yolov7-training/releases/download/0.1.0/yolov7_training_state_dict.pt
+
+Starting training run
+
+Starting epoch 1
