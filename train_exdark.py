@@ -134,10 +134,10 @@ class CarsDatasetAdaptor(Dataset):
 def main(
     data_path: str = '//content/Yolov7-training/data/ExDark',
     # data_path: str = './ExDark',
-    image_size: int = 640,
+    image_size: int = 416,
     pretrained: bool = False,
     num_epochs: int = 300,
-    batch_size: int = 8,
+    batch_size: int = 2,
 ):
 
     # load data
@@ -159,10 +159,10 @@ def main(
 
     mds = MosaicMixupDataset(
         train_ds,
-        apply_mixup_probability=0.15,
-        post_mosaic_transforms=create_post_mosaic_transform(
-            output_height=image_size, output_width=image_size
-        ),
+        apply_mixup_probability=0.15
+        # post_mosaic_transforms=create_post_mosaic_transform(
+        #     output_height=image_size, output_width=image_size
+        # ),
     )
     if pretrained:
         # disable mosaic if finetuning
