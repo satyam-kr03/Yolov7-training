@@ -103,6 +103,11 @@ class CarsDatasetAdaptor(Dataset):
 
         if image_info.has_annotation.any():
             xyxy_bboxes = image_info[["xmin", "ymin", "xmax", "ymax"]].values
+            # Ensure bounding boxes are within image boundaries
+            xyxy_bboxes[:, 0] = np.clip(xyxy_bboxes[:, 0], 0, image.shape[1] - 1)
+            xyxy_bboxes[:, 1] = np.clip(xyxy_bboxes[:, 1], 0, image.shape[0] - 1)
+            xyxy_bboxes[:, 2] = np.clip(xyxy_bboxes[:, 2], 0, image.shape[1])
+            xyxy_bboxes[:, 3] = np.clip(xyxy_bboxes[:, 3], 0, image.shape[0])
             class_ids = image_info["class_id"].values
         else:
             xyxy_bboxes = np.array([])
