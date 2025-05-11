@@ -137,7 +137,7 @@ def main(
     image_size: int = 640,
     pretrained: bool = False,
     num_epochs: int = 300,
-    batch_size: int = 2,
+    batch_size: int = 4,
 ):
 
     # load data
