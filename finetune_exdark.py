@@ -153,11 +153,11 @@ DATA_PATH = Path("/".join(Path(__file__).absolute().parts[:-2])) / "data/cars"
 def main(
     # data_path: str = '//content/Yolov7-training/data/ExDark',
     data_path: str = './ExDark',
-    # image_size: int = 640,
-    image_size: int = 416,
+    image_size: int = 640,
+    # image_size: int = 416,
     pretrained: bool = True,
     num_epochs: int = 30,
-    batch_size: int = 4,
+    batch_size: int = 8,
 ):
 
     # Load data
