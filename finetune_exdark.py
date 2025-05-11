@@ -125,6 +125,7 @@ DATA_PATH = Path("/".join(Path(__file__).absolute().parts[:-2])) / "data/cars"
 # @script
 def main(
     data_path: str = '//content/Yolov7-training/data/ExDark',
+    # data_path: str = './ExDark',
     image_size: int = 640,
     pretrained: bool = True,
     num_epochs: int = 30,
