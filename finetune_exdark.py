@@ -22,6 +22,31 @@ from yolov7.evaluation import CalculateMeanAveragePrecisionCallback
 from yolov7.loss_factory import create_yolov7_loss
 from yolov7.trainer import Yolov7Trainer, filter_eval_predictions
 
+def extract_id_from_filename(filename):
+    # Extract numeric portion from format like "2015_00001.jpg" to get 1
+    try:
+        # Extract the part after underscore and before .jpg
+        id_part = filename.split('_')[1].split('.')[0]
+        # Remove leading zeros
+        return int(id_part.lstrip('0'))
+    except (IndexError, ValueError):
+        print(f"Failed to extract ID from filename: {filename}")
+        return -1  # Fallback value for invalid formats
+    
+def debug_dataset_loading(train_df, valid_df, lookups):
+    """Print debug information about loaded datasets"""
+    print(f"\nTotal training images: {len(train_df['image'].unique())}")
+    print(f"Total validation images: {len(valid_df['image'].unique())}")
+    print(f"Total unique classes: {len(lookups['class_id_to_label'])}")
+    
+    print("\nSample of image_id_to_image mapping:")
+    for i, (id, img) in enumerate(list(lookups['image_id_to_image'].items())[:5]):
+        print(f"  {id}: {img}")
+    
+    print("\nVerifying image IDs in dataframes:")
+    print(f"Training df unique image_ids: {sorted(train_df['image_id'].unique())}")
+    print(f"Validation df unique image_ids: {sorted(valid_df['image_id'].unique())}")
+
 
 def load_exdark_df(annotations_file_path: Path, images_path: Path, 
                     background_class_name: str = "background",
@@ -30,11 +55,15 @@ def load_exdark_df(annotations_file_path: Path, images_path: Path,
                     seed: int = 42):
     # 1) list all image files
     all_images = sorted(p.name for p in images_path.iterdir() if p.is_file())
+    print(f"Found {len(all_images)} image files")
     
     # 2) read your CSV; assume it has columns:
     #    image,xmin,ymin,xmax,ymax,class_name
     ann = pd.read_csv(annotations_file_path)
     ann["has_annotation"] = True
+    
+    # Debug: Print unique images in annotations
+    print(f"Found {len(ann['image'].unique())} unique images in annotations")
     
     # 3) find up to n_empty images with no annotations
     annotated_images = set(ann["image"].unique())
@@ -55,8 +84,13 @@ def load_exdark_df(annotations_file_path: Path, images_path: Path,
     
     # 5) build mappings
     #    a) images ↔ IDs
-    image_id_to_image = {i: img for i, img in enumerate(all_images)}
-    image_to_image_id = {img: i for i, img in image_id_to_image.items()}
+    image_to_image_id = {}
+    for img in all_images:
+        img_id = extract_id_from_filename(img)
+        image_to_image_id[img] = img_id
+        print(f"Mapping: {img} -> {img_id}")  # Debug print
+    
+    image_id_to_image = {id: img for img, id in image_to_image_id.items()}
     
     #    b) classes ↔ IDs
     #       include every class that appears (incl. background if present)
@@ -65,7 +99,20 @@ def load_exdark_df(annotations_file_path: Path, images_path: Path,
     class_label_to_id = {cls: i for i, cls in class_id_to_label.items()}
     
     # 6) map into df
+    df_images = set(df["image"])
+    all_image_set = set(all_images)
+    
+    # Debug: Check for images in df not found in mapping
+    missing_images = df_images - all_image_set
+    if missing_images:
+        print(f"WARNING: These images in dataframe aren't in the image folder: {missing_images}")
+    
+    # Map image to image_id - check for missing IDs
     df["image_id"] = df["image"].map(image_to_image_id)
+    missing_ids = df[df["image_id"].isna()]["image"].unique()
+    if len(missing_ids) > 0:
+        print(f"WARNING: These images couldn't be mapped to IDs: {missing_ids}")
+    
     df["class_id"] = df["class_name"].map(class_label_to_id)
     
     # 7) split by *unique* images
@@ -85,18 +132,22 @@ def load_exdark_df(annotations_file_path: Path, images_path: Path,
         "class_label_to_id": class_label_to_id,
     }
 
+    # Print missing image IDs in each dataframe
+    print("\nMissing image_ids in train_df:", train_df[train_df["image_id"].isna()]["image"].unique())
+    print("\nMissing image_ids in valid_df:", valid_df[valid_df["image_id"].isna()]["image"].unique())
+    
     print(train_df.head())
     print(valid_df.head())
 
-    #print the class_id_to_label dictionary for debugging
+    # Print the class_id_to_label dictionary for debugging
     print("Class ID to Label Mapping:")
     for class_id, label in class_id_to_label.items():
         print(f"{class_id}: {label}")
-    print("Class Label to ID Mapping:")
-    for label, class_id in class_label_to_id.items():
-        print(f"{label}: {class_id}")
+    # print("Class Label to ID Mapping:")
+    # for label, class_id in class_label_to_id.items():
+    #     print(f"{label}: {class_id}")
 
-
+    # debug_dataset_loading(train_df, valid_df, lookups)
     return train_df, valid_df, lookups
 
 
@@ -160,13 +211,13 @@ class ExDarkAdaptor(Dataset):
 
 
 def main(
-    # data_path: str = '//content/Yolov7-training/data/ExDark',
-    data_path: str = './ExDark',
-    # image_size: int = 640,
-    image_size: int = 416,
+    data_path: str = '//content/Yolov7-training/data/ExDark',
+    # data_path: str = './ExDark',
+    image_size: int = 640,
+    # image_size: int = 416,
     pretrained: bool = True,
     num_epochs: int = 30,
-    batch_size: int = 4,
+    batch_size: int = 8,
 ):
 
     # Load data
