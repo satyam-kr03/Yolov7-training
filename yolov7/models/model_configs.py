@@ -32,6 +32,7 @@ def get_yolov7_config(num_classes=80, anchor_sizes_per_layer=None, num_channels=
 
     return {
         "state_dict_path": "https://github.com/Chris-hughes10/Yolov7-training/releases/download/0.1.0/yolov7_training_state_dict.pt",
+        # "state_dict_path": "https://github.com/satyam-kr03/Yolov7-training/releases/download/0.1.0/best_model.pt",
         "num_classes": num_classes,
         "aux_detection": False,
         "num_channels": num_channels,

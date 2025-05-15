@@ -6,7 +6,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import torch
-# from func_to_script import script
+
 from PIL import Image
 from pytorch_accelerated.callbacks import (
     EarlyStoppingCallback,
@@ -23,7 +23,7 @@ from yolov7.loss_factory import create_yolov7_loss
 from yolov7.trainer import Yolov7Trainer, filter_eval_predictions
 
 
-def load_cars_df(annotations_file_path: Path, images_path: Path, 
+def load_exdark_df(annotations_file_path: Path, images_path: Path, 
                     background_class_name: str = "background",
                     n_empty: int = 100,
                     val_split: float = 0.2,
@@ -88,11 +88,19 @@ def load_cars_df(annotations_file_path: Path, images_path: Path,
     print(train_df.head())
     print(valid_df.head())
 
+    #print the class_id_to_label dictionary for debugging
+    print("Class ID to Label Mapping:")
+    for class_id, label in class_id_to_label.items():
+        print(f"{class_id}: {label}")
+    print("Class Label to ID Mapping:")
+    for label, class_id in class_label_to_id.items():
+        print(f"{label}: {class_id}")
+
 
     return train_df, valid_df, lookups
 
 
-class CarsDatasetAdaptor(Dataset):
+class ExDarkAdaptor(Dataset):
     def __init__(
         self,
         images_dir_path,
@@ -151,15 +159,14 @@ class CarsDatasetAdaptor(Dataset):
         return image, xyxy_bboxes, class_ids, image_id, image_hw
 
 
-# @script
 def main(
-    data_path: str = '//content/Yolov7-training/data/ExDark',
-    # data_path: str = './ExDark',
-    image_size: int = 640,
-    # image_size: int = 416,
+    # data_path: str = '//content/Yolov7-training/data/ExDark',
+    data_path: str = './ExDark',
+    # image_size: int = 640,
+    image_size: int = 416,
     pretrained: bool = True,
     num_epochs: int = 30,
-    batch_size: int = 8,
+    batch_size: int = 4,
 ):
 
     # Load data
@@ -167,15 +174,15 @@ def main(
     images_path = data_path / "training_images"
     annotations_file_path = data_path / "annotations.csv"
 
-    train_df, valid_df, lookups = load_cars_df(annotations_file_path, images_path)
+    train_df, valid_df, lookups = load_exdark_df(annotations_file_path, images_path)
     num_classes = 12
 
     # Create datasets
-    train_ds = CarsDatasetAdaptor(
+    train_ds = ExDarkAdaptor(
         images_path,
         train_df,
     )
-    eval_ds = CarsDatasetAdaptor(images_path, valid_df)
+    eval_ds = ExDarkAdaptor(images_path, valid_df)
 
     train_yds = Yolov7Dataset(
         train_ds,

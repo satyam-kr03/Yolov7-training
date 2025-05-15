@@ -119,11 +119,11 @@ DATA_PATH = Path("/".join(Path(__file__).absolute().parts[:-2])) / "data/cars"
 
 # @script
 def main(
-    data_path: str = '//content/drive/MyDrive/data/cars',
-    image_size: int = 640,
+    data_path: str = DATA_PATH,
+    image_size: int = 416,
     pretrained: bool = True,
-    num_epochs: int = 30,
-    batch_size: int = 8,
+    num_epochs: int = 1,
+    batch_size: int = 4,
 ):
 
     # Load data

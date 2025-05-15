@@ -1,0 +1,49 @@
+            image xmin ymin xmax  ... class_name has_annotation  image_id  class_id
+0  2015_00401.jpg  109   23  201  ...    bicycle           True     400.0         0
+1  2015_00401.jpg  124    2  200  ...     people           True     400.0         1
+2  2015_03331.jpg    5  298  111  ...        cat           True    3330.0         2
+3  2015_03331.jpg  109  222  197  ...        cat           True    3330.0         2
+4  2015_03331.jpg  194  201  279  ...        cat           True    3330.0         2
+
+[5 rows x 9 columns]
+            image xmin ymin  ... has_annotation image_id class_id
+0  2015_03030.jpg    5  375  ...           True   3029.0        5
+1  2015_03030.jpg  405  421  ...           True   3029.0        5
+2  2015_04781.jpg  641  432  ...           True   4780.0        6
+3  2015_05136.jpg  110   12  ...           True   5135.0        1
+4  2015_05136.jpg  257  160  ...           True   5135.0        8
+
+[5 rows x 9 columns]
+Class ID to Label Mapping:
+0: bicycle
+1: people
+2: cat
+3: chair
+4: table
+5: car
+6: cup
+7: motorbike
+8: dog
+9: boat
+10: bottle
+11: bus
+12: background
+Class Label to ID Mapping:
+bicycle: 0
+people: 1
+cat: 2
+chair: 3
+table: 4
+car: 5
+cup: 6
+motorbike: 7
+dog: 8
+boat: 9
+bottle: 10
+bus: 11
+background: 12
+Transferred 555/566 items from https://github.com/Chris-hughes10/Yolov7-training/releases/download/0.1.0/yolov7_training_state_dict.pt
+
+Starting training run
+
+Starting epoch 1
