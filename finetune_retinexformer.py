@@ -216,7 +216,7 @@ def main(
     image_size: int = 640,
     # image_size: int = 416,
     pretrained: bool = True,
-    num_epochs: int = 30,
+    num_epochs: int = 50,
     batch_size: int = 8,
 ):
 
