@@ -211,7 +211,7 @@ class ExDarkAdaptor(Dataset):
 
 
 def main(
-    data_path: str = '//content/Yolov7-training/data/ExDark',
+    data_path: str = '//content/Yolov7-training/data/ExDark_Retinexformer',
     # data_path: str = './ExDark_Retinexformer',
     image_size: int = 640,
     # image_size: int = 416,

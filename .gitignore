@@ -11,3 +11,7 @@
 /CSV_GT/
 *.zip
 *.pt
+*.png
+*.jpg
+*.jpeg
+*.JPEG
